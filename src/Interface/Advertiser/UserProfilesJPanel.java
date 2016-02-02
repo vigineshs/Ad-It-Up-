@@ -1,0 +1,446 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+
+package Interface.Advertiser;
+
+import Business.Enterprise;
+import Business.Network.Network;
+import Business.Order.Order;
+import Business.Order.OrderItem;
+import Business.Organization.Organization;
+import Business.Organization.UserOrganization;
+import Business.UserAccount.UserAccount;
+import Business.WishList.WishList;
+import Business.WorkQueue.BiddingWorkRequest;
+import java.awt.CardLayout;
+import java.util.ArrayList;
+import javax.swing.JPanel;
+import javax.swing.table.DefaultTableModel;
+
+/**
+ *
+ * @author Hema
+ */
+public class UserProfilesJPanel extends javax.swing.JPanel {
+
+    /**
+     * Creates new form UserProfilesJPanel
+     */
+    JPanel container;
+    Enterprise enterprise;
+    UserAccount userAccount;
+    private int rows =0, cols = 0;
+    public UserProfilesJPanel(JPanel container, UserAccount userAccount, Enterprise enterprise) {
+        initComponents();
+        this.container = container;
+        this.enterprise = enterprise;
+        this.userAccount = userAccount;
+        populateComboBoxes();
+        populatePageHitTable();
+    }
+
+    private void populateComboBoxes() {
+        topSellingNetworkJComboBox.removeAllItems();
+        wishNetworkJComboBox.removeAllItems();
+        for(Network network : enterprise.getNetworkDirectory().getNetworkList()) {
+            topSellingNetworkJComboBox.addItem(network);
+            wishNetworkJComboBox.addItem(network);
+        }
+    }
+    
+    private ArrayList sort(ArrayList<OrderItem> topProducrList) {
+        int size = topProducrList.size();
+        for(int i = 0; i<size; i++) {
+            for(int j = i+1; j< size; j++) {
+                OrderItem object1 = (OrderItem) topProducrList.get(i);
+                OrderItem object2 = (OrderItem) topProducrList.get(j);
+                if(object2.getQuantity() > object1.getQuantity()) {
+                        topProducrList.set(i, object2);
+                        topProducrList.set(j, object1);
+                }
+            }
+        }
+        return topProducrList;
+    }
+    
+    private ArrayList arrangeProducts() {
+        ArrayList<OrderItem> topProductList = new ArrayList<>();
+        Network network = (Network) topSellingNetworkJComboBox.getSelectedItem();
+        UserOrganization userOrganization;
+        Boolean match;
+        
+        for(Organization organization : network.getOrganizationDirectory().getOrganizationList()) {
+            if(organization instanceof UserOrganization) {
+                userOrganization = (UserOrganization) organization;
+                for(Order order : userOrganization.getMasterOrderCatalog().getMasterOrderList()) {
+                    for(OrderItem oi : order.getOrders()){
+                        if(topProductList.isEmpty()) {
+                            topProductList.add(oi);
+                        }
+                        else {
+                            match = false;
+                            for(OrderItem orderItem : topProductList) {
+                                if(oi.getProduct().getProductId() == orderItem.getProduct().getProductId()) {
+                                    int quantity = orderItem.getQuantity();
+                                    orderItem.setQuantity((quantity + oi.getQuantity()));
+                                    match = true;
+                                    break;
+                                }
+                            }
+                            if(!match){
+                                topProductList.add(oi);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+       return sort(topProductList);
+    }
+    
+    private void populatePageHitTable() {
+        DefaultTableModel tableModel = (DefaultTableModel) pageHitJTable.getModel();
+        tableModel.setRowCount(0);
+        for(BiddingWorkRequest biddingWorkRequest : userAccount.getWorkQueue().getBiddingWorkRequests()) {
+            Object[] row = new Object[3];
+            row[0] = biddingWorkRequest.getAd();
+            row[1] = biddingWorkRequest.getPageHit();
+            if(biddingWorkRequest.getPageHit() == 0)
+                row[2] = "Try increasin bid";
+            else if(biddingWorkRequest.getPageHit() > 1 && biddingWorkRequest.getPageHit() <= 5)
+                row[2] = "Gaining momentum";
+            else if(biddingWorkRequest.getPageHit() > 5 && biddingWorkRequest.getPageHit() <= 8)
+                row[2] = "Almost there";
+            else 
+                row[2] = "User Magnet";
+            tableModel.addRow(row);
+        }
+    }
+    /**
+     * This method is called from within the constructor to initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is always
+     * regenerated by the Form Editor.
+     */
+    @SuppressWarnings("unchecked")
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    private void initComponents() {
+
+        jTabbedPane1 = new javax.swing.JTabbedPane();
+        jPanel2 = new javax.swing.JPanel();
+        jScrollPane3 = new javax.swing.JScrollPane();
+        topSellingJTable = new javax.swing.JTable();
+        jLabel5 = new javax.swing.JLabel();
+        jLabel6 = new javax.swing.JLabel();
+        topSellingNetworkJComboBox = new javax.swing.JComboBox();
+        backJButton7 = new javax.swing.JButton();
+        jPanel1 = new javax.swing.JPanel();
+        wishNetworkJComboBox = new javax.swing.JComboBox();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        wishListJTable = new javax.swing.JTable();
+        jLabel1 = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
+        jPanel3 = new javax.swing.JPanel();
+        jLabel3 = new javax.swing.JLabel();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        pageHitJTable = new javax.swing.JTable();
+
+        jTabbedPane1.setBackground(new java.awt.Color(51, 51, 51));
+        jTabbedPane1.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
+
+        jPanel2.setBackground(new java.awt.Color(51, 51, 51));
+
+        topSellingJTable.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "Product", "Total Quantity"
+            }
+        ));
+        jScrollPane3.setViewportView(topSellingJTable);
+
+        jLabel5.setFont(new java.awt.Font("Times New Roman", 3, 14)); // NOI18N
+        jLabel5.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel5.setText("Top Selling by Network");
+
+        jLabel6.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
+        jLabel6.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel6.setText("Network");
+
+        topSellingNetworkJComboBox.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                topSellingNetworkJComboBoxActionPerformed(evt);
+            }
+        });
+
+        backJButton7.setText("Back");
+        backJButton7.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                backJButton7ActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
+        jPanel2.setLayout(jPanel2Layout);
+        jPanel2Layout.setHorizontalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(jPanel2Layout.createSequentialGroup()
+                            .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addGroup(jPanel2Layout.createSequentialGroup()
+                                    .addGap(37, 37, 37)
+                                    .addComponent(jLabel5))
+                                .addGroup(jPanel2Layout.createSequentialGroup()
+                                    .addGap(115, 115, 115)
+                                    .addComponent(jLabel6)))
+                            .addGap(18, 18, 18)
+                            .addComponent(topSellingNetworkJComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 134, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGroup(jPanel2Layout.createSequentialGroup()
+                            .addGap(37, 37, 37)
+                            .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 444, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(backJButton7)))
+                .addContainerGap(269, Short.MAX_VALUE))
+        );
+        jPanel2Layout.setVerticalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addGap(16, 16, 16)
+                .addComponent(backJButton7)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel6)
+                    .addComponent(topSellingNetworkJComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(24, 24, 24)
+                .addComponent(jLabel5)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 101, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(194, Short.MAX_VALUE))
+        );
+
+        jTabbedPane1.addTab("Top Selling", jPanel2);
+
+        jPanel1.setBackground(new java.awt.Color(51, 51, 51));
+
+        wishNetworkJComboBox.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                wishNetworkJComboBoxActionPerformed(evt);
+            }
+        });
+
+        wishListJTable.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "Product Category", "Count"
+            }
+        ));
+        jScrollPane1.setViewportView(wishListJTable);
+
+        jLabel1.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
+        jLabel1.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel1.setText("Network");
+
+        jLabel2.setFont(new java.awt.Font("Times New Roman", 3, 14)); // NOI18N
+        jLabel2.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel2.setText("Wishlist by Network");
+
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGap(34, 34, 34)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 444, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(71, 71, 71)
+                        .addComponent(jLabel1)
+                        .addGap(18, 18, 18)
+                        .addComponent(wishNetworkJComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 134, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jLabel2))
+                .addContainerGap(272, Short.MAX_VALUE))
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGap(48, 48, 48)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(wishNetworkJComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel1))
+                .addGap(13, 13, 13)
+                .addComponent(jLabel2)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 101, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(202, Short.MAX_VALUE))
+        );
+
+        jTabbedPane1.addTab("Wishlist", jPanel1);
+
+        jPanel3.setBackground(new java.awt.Color(51, 51, 51));
+
+        jLabel3.setFont(new java.awt.Font("Times New Roman", 3, 14)); // NOI18N
+        jLabel3.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel3.setText("Page hit rates ");
+
+        pageHitJTable.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "Ad", "Hit Rate", "Comment"
+            }
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        jScrollPane2.setViewportView(pageHitJTable);
+        if (pageHitJTable.getColumnModel().getColumnCount() > 0) {
+            pageHitJTable.getColumnModel().getColumn(0).setResizable(false);
+            pageHitJTable.getColumnModel().getColumn(1).setResizable(false);
+            pageHitJTable.getColumnModel().getColumn(2).setResizable(false);
+        }
+
+        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
+        jPanel3.setLayout(jPanel3Layout);
+        jPanel3Layout.setHorizontalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addGap(37, 37, 37)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel3)
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 444, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(269, Short.MAX_VALUE))
+        );
+        jPanel3Layout.setVerticalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addGap(89, 89, 89)
+                .addComponent(jLabel3)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 101, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(194, Short.MAX_VALUE))
+        );
+
+        jTabbedPane1.addTab("Page Hit Rates", jPanel3);
+
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
+        this.setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jTabbedPane1)
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jTabbedPane1)
+        );
+    }// </editor-fold>//GEN-END:initComponents
+
+    private void topSellingNetworkJComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_topSellingNetworkJComboBoxActionPerformed
+        // TODO add your handling code here:
+        ArrayList<OrderItem> orderItems = arrangeProducts();
+        DefaultTableModel  model =(DefaultTableModel) topSellingJTable.getModel();
+        model.setRowCount(0);
+        for(OrderItem orderItem : orderItems) {
+            Object[] row = new Object[3];
+            row[0] = orderItem.getProduct().getProductName();
+            row[1] = orderItem.getQuantity();
+            model.addRow(row);
+        }
+        
+                        /*for(int i=0; i<rows; i++) {
+                            totalSales = 0;
+                            productName = (String) model.getValueAt(i, 0);
+                            if(oi.getProduct().getProductName().equals(productName)){
+                                totalSales = (int) model.getValueAt(i, 1);
+                                totalSales += oi.getQuantity();
+                                model.setValueAt(totalSales, i, 1);
+                                flag = 1;
+                            }
+
+                        }
+                        if(flag == 0) {
+                                row[0] = oi.getProduct().getProductName();
+                                row[1] = oi.getQuantity();
+                                model.addRow(row);
+
+                            } 
+                        rows = model.getRowCount();*/
+    }//GEN-LAST:event_topSellingNetworkJComboBoxActionPerformed
+
+    private void wishNetworkJComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_wishNetworkJComboBoxActionPerformed
+        // TODO add your handling code here:
+        Network network = (Network) wishNetworkJComboBox.getSelectedItem();
+        DefaultTableModel tableModel = (DefaultTableModel) wishListJTable.getModel();
+        tableModel.setRowCount(0);
+        rows = tableModel.getRowCount();
+        cols = tableModel.getColumnCount();
+        int totalWishes, flag = 0;
+        WishList list;
+        for(Organization organization : network.getOrganizationDirectory().getOrganizationList()) {
+            if(organization instanceof UserOrganization) {
+                UserOrganization userOrganization = (UserOrganization) organization;
+                for(WishList wishList : userOrganization.getWishListDirectory().getWishLists()) {
+                    Object[] row = new Object[3];
+                    for(int i=0; i<rows; i++) {
+                        list =  (WishList) tableModel.getValueAt(i, 0);
+                        if(wishList.getProductCategory().equals(list.getProductCategory())){
+                            totalWishes = (int) tableModel.getValueAt(i, 1);
+                            totalWishes++;
+                            tableModel.setValueAt(totalWishes, i, 1);
+                            flag = 1;
+                        }
+                    }
+                    if(flag == 0) {
+                        row[0] = wishList;
+                        row[1] = 1;
+                        tableModel.addRow(row);
+                    }
+                    rows = tableModel.getRowCount();
+                }
+            }
+        }
+    }//GEN-LAST:event_wishNetworkJComboBoxActionPerformed
+
+    private void backJButton7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_backJButton7ActionPerformed
+        // TODO add your handling code here:
+        container.remove(this);
+        CardLayout layout = (CardLayout) container.getLayout();
+        layout.previous(container);
+    }//GEN-LAST:event_backJButton7ActionPerformed
+
+    
+
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton backJButton7;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanel3;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JScrollPane jScrollPane3;
+    private javax.swing.JTabbedPane jTabbedPane1;
+    private javax.swing.JTable pageHitJTable;
+    private javax.swing.JTable topSellingJTable;
+    private javax.swing.JComboBox topSellingNetworkJComboBox;
+    private javax.swing.JTable wishListJTable;
+    private javax.swing.JComboBox wishNetworkJComboBox;
+    // End of variables declaration//GEN-END:variables
+}
